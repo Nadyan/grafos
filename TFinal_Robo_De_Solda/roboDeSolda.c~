@@ -1,6 +1,7 @@
 /*
 		Projeto Final - Teoria dos Grafos
-		Robo de solda
+		Braco de solda
+
 
 		O PROGRAMA VAI LER O TXT DO GRAFO COMPLETO E SUAS DISTANCIAS
 		RODA O FLOYD PRA VER QUAL A DISTANCIA ENTRE TODOS OS VERTICES
@@ -175,14 +176,14 @@ void floydWarshall(int **matriz, int **matrizFloyd, int qtdVertices){
 	for(j = 0; j < qtdVertices; j++){
 		if(i == j)
             matrizFloyd[i][j] = 0;
-		else
+        else
 			matrizFloyd[i][j] = matrizes[qtdVertices][i][j];
 	}
 
 	free(matrizes);
 
 	Sleep(1); //delay de 1 segundo
-	printf("   OK.\n\n");
+    printf("   OK.\n\n");
 }
 
 int minimo(int a, int b){

@@ -1,6 +1,9 @@
 /*
-		Projeto Final - Teoria dos Grafos
-		Braco de solda
+		Nadyan Suriel Pscheidt
+		Andre Tragancin
+		
+		Projeto Final - Teoria dos Grafos - UDESC
+		Robo de solda
 
 
 		O PROGRAMA VAI LER O TXT DO GRAFO COMPLETO E SUAS DISTANCIAS

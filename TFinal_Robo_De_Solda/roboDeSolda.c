@@ -1,6 +1,7 @@
 /*
 		Projeto Final - Teoria dos Grafos
-		Robo de solda
+		Braco de solda
+
 
 		O PROGRAMA VAI LER O TXT DO GRAFO COMPLETO E SUAS DISTANCIAS
 		RODA O FLOYD PRA VER QUAL A DISTANCIA ENTRE TODOS OS VERTICES
@@ -15,8 +16,10 @@
 
 #define INFINITO 500
 
+int ***matrizes;	//vetor de k matrizes
+
 void solda();
-void floydWarshall(int **matriz, int **matrizFloyd, int qtdVertices);
+void floydWarshall(int **matriz, int qtdVertices);
 void adjacente(int **matriz, int quantidadeVertices);
 int minimo(int a, int b);
 
@@ -47,23 +50,22 @@ int main(){
 }
 
 void solda(){
-	int qtdVertices, i, j, x, y, soldar = -20;
+	int qtdVertices, i, j, x, y, soldar = -20, qtdSolda = 0;
 	int *vetorSolda;
 	int **matriz;
-	int **matrizFloyd;
-	int **grafoFinal;
-	int distanciaMinima = 0, primeiro, proximo, atual, terminou;
+	int distanciaMinima = 0, primeiro = 0, proximo = 0, atual = 0, soldado = 1;
 
 	printf("\n\n    Informe a quantidade de vertices: ");
 	scanf("%d", &qtdVertices);
 
-	vetorSolda = (int*)calloc(qtdVertices, sizeof(int)); //vetor de vertices que precisa soldar (calloc para inicar zerado)
+	vetorSolda = (int*)calloc(sizeof(int), qtdVertices); //vetor de vertices que precisa soldar (calloc para inicar zerado)
 
 	printf("\n\n    Informe os vertices a serem soldados (-1 para terminar):\n    ");
 	while(soldar != -1){
         scanf("%d", &soldar);
         if(soldar != -1){
             soldar--; //decrementa o valor para colocar no vetor que inicia em 0
+            qtdSolda++; //conta quantos vertices precisam ser soldados
             vetorSolda[soldar] = 1; //marca o vertice como ponto de solda
         }
         printf("    ");
@@ -73,12 +75,8 @@ void solda(){
 
 	/*-alocação e montagem da matriz adjacente com peso e alocacao das demais matrizes-*/
     matriz = malloc(sizeof(int*) * qtdVertices);  //aloca as linhas da matriz
-	matrizFloyd = malloc(sizeof(int*) * qtdVertices);  //aloca as linhas da matriz
-	grafoFinal = malloc(sizeof(int*) * qtdVertices);  //aloca as linhas da matriz
     for(i = 0; i < qtdVertices; i++){
         matriz[i] = malloc(sizeof(int) * qtdVertices);   // aloca as colunas da matriz
-		matrizFloyd = malloc(sizeof(int*) * qtdVertices);  //aloca as linhas da matriz
-		grafoFinal = malloc(sizeof(int*) * qtdVertices);  //aloca as linhas da matriz
         for(j = 0; j < qtdVertices; j++){
             matriz[i][j] = INFINITO;    //inicializa a matriz com pesos INFINITO
         }
@@ -86,56 +84,66 @@ void solda(){
     adjacente(matriz, qtdVertices);  //monta a matriz adjacente
     /*-----------------------------------------*/
 
-	floydWarshall(matriz, matrizFloyd, qtdVertices); //monta a matriz dos menores caminhos entre cada vertice
+	floydWarshall(matriz, qtdVertices); //monta a matriz dos menores caminhos entre cada vertice
 
 	i = 0;
 	do{ //encontrar o primeiro vertice a ser soldado
 		if(vetorSolda[i] == 1){
 			primeiro = i;
 			atual = i;
+			break;
 		}else{
 			i++;
 		}
-	}while(vetorSolda[i] == 0);
-
+	}while(1);
 	proximo = atual + 1; //proximo comeca na posicao depois do primeiro
-	terminou = proximo;  //terminou ira contar os passos do proximo ate o final do vetorSolda
+	distanciaMinima = 0;
 
-	while(terminou != qtdVertices){
-		/*toda vez que andar com o proximo, incrementa naoTerminou*/
-		while(vetorSolda[proximo] != 1){
-			proximo++;
-			terminou++;
-		}
+    while(1){
+		while(1){ //ate encontrar o proximo a ser soldado
+			if(vetorSolda[proximo] == 1){
+                break;
+            }else{
+                proximo++;
+            }
+		};
 
-		distanciaMinima += matrizFloyd[atual][proximo];
-		grafoFinal[atual][proximo] = matrizFloyd[atual][proximo];
-		atual = proximo;
+        if(vetorSolda[proximo] == 1){
+            distanciaMinima += matrizes[qtdVertices][atual][proximo];
+            
+            atual = proximo;
+            proximo++;
+            soldado++;
+        }
+
+        if(soldado == qtdSolda){ //se ja soldou todos, termina
+            break;
+        }
 	}
-
-	distanciaMinima += matrizFloyd[atual][primeiro]; //para completar o ciclo, pega o atual que agora eh o ultimo e liga com o primeiro
+	
+	distanciaMinima += matrizes[qtdVertices][atual][primeiro]; //para completar o ciclo, pega o atual que agora eh o ultimo e liga com o primeiro
 
 	printf("\n\n    Distancia minima a ser percorrida: %d\n\n    ", distanciaMinima);
 
-	printf("Grafo de conexao:\n\n");
+	/*printf("Grafo de conexao:\n\n");
 	for(x = 0; x < qtdVertices; x++){
 		printf("    ");
 		for(y = 0; y < qtdVertices; y++){
 			printf("%d\t", grafoFinal[x][y]);
 		}
 		printf("\n");
-	}
+	}*/
 
 	system("pause");
 	system("cls");
 
 	free(matriz);
 	free(vetorSolda);
+	free(matrizes);
 }
 
-void floydWarshall(int **matriz, int **matrizFloyd, int qtdVertices){
-	int k, i, j; 		//indices
-	int ***matrizes;	//vetor de k matrizes
+void floydWarshall(int **matriz, int qtdVertices){
+	int k, i, j;
 
 	printf("\n\n    Calculando Floyd-Warshall... ");
 
@@ -145,11 +153,10 @@ void floydWarshall(int **matriz, int **matrizFloyd, int qtdVertices){
 		matrizes[i] = (int**)calloc(sizeof(int*), qtdVertices); //alocacao do seg. nivel
 	}
 	for(i = 0; i <= qtdVertices; i++){
-		for(j = 0; j <= qtdVertices; j++){
+		for(j = 0; j < qtdVertices; j++){
 			matrizes[i][j] = (int*)calloc(sizeof(int), qtdVertices); //alocacao do terc. nivel
 		}
 	}
-
 
 	/**inicializacao da primeira matriz com a matriz adj original**/
 	for(i = 0; i < qtdVertices; i++){
@@ -158,10 +165,8 @@ void floydWarshall(int **matriz, int **matrizFloyd, int qtdVertices){
 		}
 	}
 
-
-	/**criacao das k outras matrizes utilizando a formula
+	/**criacao das k matrizes utilizando a formula
 		Dij(k) = min(Dij^(k-1), Dik^(k-1) + Dkj^(k-1))   **/
-
 	for(k = 1; k <= qtdVertices; k++){
 		for(i = 0; i < qtdVertices; i++){
 			for(j = 0; j < qtdVertices; j++){
@@ -170,19 +175,20 @@ void floydWarshall(int **matriz, int **matrizFloyd, int qtdVertices){
 		}
 	}
 
+    printf("\n\n");
+    for(i = 0; i < qtdVertices; i++){
+        for(j = 0; j < qtdVertices; j++){
 
-	/**coloca o resultado final do floyd na matriz inicial**/
-	for(j = 0; j < qtdVertices; j++){
-		if(i == j)
-            matrizFloyd[i][j] = 0;
-		else
-			matrizFloyd[i][j] = matrizes[qtdVertices][i][j];
-	}
+            if(j == i)
+                matrizes[qtdVertices][i][j] = 0;
 
-	free(matrizes);
+            printf("%d ", matrizes[qtdVertices][i][j]);
 
-	Sleep(1); //delay de 1 segundo
-	printf("   OK.\n\n");
+        }
+        printf("\n");
+    }
+
+    printf("   OK.\n\n");
 }
 
 int minimo(int a, int b){
@@ -213,10 +219,27 @@ void adjacente(int **matriz, int quantidadeVertices){
 		}
 	}
 
+    for(x = 0; x < quantidadeVertices; x++){
+        for(y = 0; y < quantidadeVertices; y++){ //espelhar a matriz
+            if(x > y)
+                matriz[x][y] = matriz[y][x];
+        }
+    }
+
+        //imprime a matriz
+		/*printf("\n\n****** Matriz de adjacencia ******\n\n");
+		for(x = 0; x < quantidadeVertices; x++){
+			for(y = 0; y < quantidadeVertices; y++){
+				printf("%d ", matriz[x][y]);
+            }
+            printf("\n");
+        }
+        printf("\n...................................\n\n");*/
+
 	fclose(f);
 
-	Sleep(1); //delay de 1 segundo
 	printf("   OK.\n\n");
+	//system("pause");
 }
 
 

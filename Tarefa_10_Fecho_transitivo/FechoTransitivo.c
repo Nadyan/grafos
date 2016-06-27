@@ -2,8 +2,9 @@
 #include <stdlib.h>
 #include <windows.h>
 
-void dfs(int i, int **matriz, int qtdVert, int *visitados);
-void adjacente(int **matriz, int quantidadeVertices); //funçao para criar a matriz adjacente
+void dfsFTD(int i, int **matrizFTD, int qtdVert, int *visitados);
+void dfsFTI(int i, int **matrizFTI, int qtdVert, int *visitados);
+void adjacente(int **matrizFTD, int **matrizFTI, int quantidadeVertices); //funçao para criar a matriz adjacente
 void busca();
 
 int main(){
@@ -33,7 +34,7 @@ int main(){
 }
 
 void busca(){
-    int **matriz;
+    int **matrizFTD, **matrizFTI;
     int qtdNos, i, j, inicio, fti;
 
     printf("\n    Informe a quantidade de vertices: ");
@@ -43,14 +44,17 @@ void busca(){
     memset(visitados, 0, sizeof(visitados)); /*inicia o vetor com 0*/
 
     /*-alocação e montagem da matriz adjacente-*/
-    matriz = malloc(sizeof(int*) * qtdNos);  //aloca as linhas da matriz
+    matrizFTD = malloc(sizeof(int*) * qtdNos);  //aloca as linhas da matriz
+    matrizFTI = malloc(sizeof(int*) * qtdNos);
     for(i = 0; i < qtdNos; i++){
-        matriz[i] = malloc(sizeof(int) * qtdNos);   // aloca as colunas da matriz
+        matrizFTD[i] = malloc(sizeof(int) * qtdNos);   // aloca as colunas da matriz
+        matrizFTI[i] = malloc(sizeof(int*) * qtdNos);
         for(j = 0; j < qtdNos; j++){
-            matriz[i][j] = 0;    //inicializa a matriz com 0
+            matrizFTD[i][j] = 0;    //inicializa a matriz com 0
+            matrizFTI[i][j] = 0;
         }
     }
-    adjacente(matriz, qtdNos);  //monta a matriz adjacente
+    adjacente(matrizFTD, matrizFTI, qtdNos);  //monta a matriz adjacente
     /*-----------------------------------------*/
 
     /* FECHO TRANSITIVO DIRETO */
@@ -58,43 +62,70 @@ void busca(){
         printf("\n    FTD do vertice %d:   ", i+1);
 
         /*chama DFS com o inicio*/
-        dfs(i, matriz, qtdNos, visitados);
+        dfsFTD(i, matrizFTD, qtdNos, visitados);
 
         memset(visitados, 0, sizeof(visitados)); //zera visitados
 
         printf("\n");
     }
 
+    printf("\n");
+
     /* FECHO TRANSITIVO INDIRETO */
-    /*        FTI AQUI!          */
-    /*                           */
+    for(i = 0; i < qtdNos; i++){
+        printf("\n    FTI do vertice %d:   ", i+1);
+
+        /*chama DFS com o inicio*/
+        dfsFTI(i, matrizFTI, qtdNos, visitados);
+
+        memset(visitados, 0, sizeof(visitados)); //zera visitados
+
+        printf("\n");
+    }
 
     printf("\n\n\n    ");
 
     system("pause");
     system("cls");
 
-    free(matriz);
+    free(matrizFTD);
+    free(matrizFTI);
 }
 
-void dfs(int i, int **matriz, int qtdVert, int *visitados){
+void dfsFTD(int i, int **matrizFTD, int qtdVert, int *visitados){
     int j; //contador
 
     visitados[i] = 1;
 
     for(j = 0; j < qtdVert; j++){
-        if(!visitados[j] && matriz[i][j] != 0){   //se nao foi visitado e
+        if(!visitados[j] && matrizFTD[i][j] != 0){   //se nao foi visitado e
                                                   //existe ligaçao entre os vertices i e j
 
             printf("%d  ", j+1);  //imprime j e executa a recursão
 
-            dfs(j, matriz, qtdVert, visitados);
+            dfsFTD(j, matrizFTD, qtdVert, visitados);
         }
     }
 }
 
-void adjacente(int **matriz, int quantidadeVertices){
-	FILE *f = fopen("grafo.txt", "r+");
+void dfsFTI(int i, int **matrizFTI, int qtdVert, int *visitados){
+    int j; //contador
+
+    visitados[i] = 1;
+
+    for(j = 0; j < qtdVert; j++){
+        if(!visitados[j] && matrizFTI[i][j] != 0){   //se nao foi visitado e
+                                                  //existe ligaçao entre os vertices i e j
+
+            printf("%d  ", j+1);  //imprime j e executa a recursão
+
+            dfsFTI(j, matrizFTI, qtdVert, visitados);
+        }
+    }
+}
+
+void adjacente(int **matrizFTD, int **matrizFTI, int quantidadeVertices){
+	FILE *f = fopen("grafo2.txt", "r+");
 	int x, y; //campos da matriz
 	int peso;
 
@@ -102,8 +133,8 @@ void adjacente(int **matriz, int quantidadeVertices){
 			printf("Erro ao abrir o arquivo!\n");
 	else{
 		while((fscanf(f," %d %d %d\n", &x, &peso, &y)) != EOF){   //le uma linha de cada vez
-			matriz[y-1][x-1]++;                                   //e aumenta o numero de arestas entre cada vertice
+			matrizFTD[x-1][y-1]++;
+			matrizFTI[y-1][x-1]++;                                  //e aumenta o numero de arestas entre cada vertice
 		}
 	}
-
 }

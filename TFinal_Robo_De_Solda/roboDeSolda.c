@@ -1,7 +1,7 @@
 /*
 		Nadyan Suriel Pscheidt
 		Andre Tragancin
-		
+
 		Projeto Final - Teoria dos Grafos - UDESC
 		Robo de solda
 
@@ -113,7 +113,7 @@ void solda(){
 
         if(vetorSolda[proximo] == 1){
             distanciaMinima += matrizes[qtdVertices][atual][proximo];
-            
+
             atual = proximo;
             proximo++;
             soldado++;
@@ -123,19 +123,10 @@ void solda(){
             break;
         }
 	}
-	
+
 	distanciaMinima += matrizes[qtdVertices][atual][primeiro]; //para completar o ciclo, pega o atual que agora eh o ultimo e liga com o primeiro
 
-	printf("\n\n    Distancia minima a ser percorrida: %d\n\n    ", distanciaMinima);
-
-	/*printf("Grafo de conexao:\n\n");
-	for(x = 0; x < qtdVertices; x++){
-		printf("    ");
-		for(y = 0; y < qtdVertices; y++){
-			printf("%d\t", grafoFinal[x][y]);
-		}
-		printf("\n");
-	}*/
+	printf("\n\n    Distancia minima a ser percorrida: %d\n\n\n\n\n    ", distanciaMinima);
 
 	system("pause");
 	system("cls");
@@ -180,6 +171,7 @@ void floydWarshall(int **matriz, int qtdVertices){
 
     printf("\n\n");
     for(i = 0; i < qtdVertices; i++){
+        printf("    ");
         for(j = 0; j < qtdVertices; j++){
 
             if(j == i)
@@ -191,7 +183,7 @@ void floydWarshall(int **matriz, int qtdVertices){
         printf("\n");
     }
 
-    printf("   OK.\n\n");
+    printf("\n    OK.\n");
 }
 
 int minimo(int a, int b){
@@ -221,27 +213,28 @@ void adjacente(int **matriz, int quantidadeVertices){
 			}
 		}
 	}
-
+/*
     for(x = 0; x < quantidadeVertices; x++){
         for(y = 0; y < quantidadeVertices; y++){ //espelhar a matriz
             if(x > y)
                 matriz[x][y] = matriz[y][x];
         }
     }
+*/
 
         //imprime a matriz
-		/*printf("\n\n****** Matriz de adjacencia ******\n\n");
+		printf("\n\n****** Matriz de adjacencia ******\n\n");
 		for(x = 0; x < quantidadeVertices; x++){
 			for(y = 0; y < quantidadeVertices; y++){
 				printf("%d ", matriz[x][y]);
             }
             printf("\n");
         }
-        printf("\n...................................\n\n");*/
+        printf("\n...................................\n\n");
 
 	fclose(f);
 
-	printf("   OK.\n\n");
+	printf("   OK.");
 	//system("pause");
 }
 
